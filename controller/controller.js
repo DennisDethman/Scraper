@@ -1,15 +1,15 @@
 //dependencies
-var express = require('express');
-var router = express.Router();
-var path = require('path');
+const express = require('express');
+const router = express.Router();
+const path = require('path');
 
 //require request and cheerio to scrape
-var request = require('request');
-var cheerio = require('cheerio');
+const request = require('request');
+const cheerio = require('cheerio');
 
 //Require models
-var Comment = require('../models/comment.js');
-var Article = require('../models/article.js');
+const Comment = require('../models/comment.js');
+const Article = require('../models/article.js');
 
 //index
 router.get('/', function(req, res) {
@@ -23,12 +23,12 @@ router.get('/scrape', function(req, res) {
     // First, we grab the body of the html with request
     request('http://www.theverge.com/tech', function(error, response, html) {
         // Then, we load that into cheerio and save it to $ for a shorthand selector
-        var $ = cheerio.load(html);
-        var titlesArray = [];
+        const $ = cheerio.load(html);
+        let titlesArray = [];
         // Now, we grab every article
         $('.c-entry-box--compact__title').each(function(i, element) {
             // Save an empty result object
-            var result = {};
+            let result = {};
 
             // Add the text and href of every link, and save them as properties of the result object
             result.title = $(this).children('a').text();
@@ -48,7 +48,7 @@ router.get('/scrape', function(req, res) {
                         if(test == 0){
 
                             //using Article model, create new object
-                            var entry = new Article (result);
+                            const entry = new Article (result);
 
                             //save entry to mongodb
                             entry.save(function(err, doc) {
@@ -87,7 +87,7 @@ router.get('/articles', function(req, res) {
             if(err){
                 console.log(err);
             } else{
-                var artcl = {article: doc};
+                const artcl = {article: doc};
                 res.render('index', artcl);
             }
         });
@@ -118,8 +118,8 @@ router.get('/clearAll', function(req, res) {
 });
 
 router.get('/readArticle/:id', function(req, res){
-    var articleId = req.params.id;
-    var hbsObj = {
+    const articleId = req.params.id;
+    let hbsObj = {
         article: [],
         body: []
     };
@@ -132,10 +132,10 @@ router.get('/readArticle/:id', function(req, res){
                 console.log('Error: ' + err);
             } else {
                 hbsObj.article = doc;
-                var link = doc.link;
+                const link = doc.link;
                 //grab article from link
                 request(link, function(error, response, html) {
-                    var $ = cheerio.load(html);
+                    const $ = cheerio.load(html);
 
                     $('.l-col__main').each(function(i, element){
                         hbsObj.body = $(this).children('.c-entry-content').children('p').text();
@@ -152,18 +152,18 @@ router.get('/readArticle/:id', function(req, res){
 
 // Create a new comment
 router.post('/comment/:id', function(req, res) {
-    var user = req.body.name;
-    var content = req.body.comment;
-    var articleId = req.params.id;
+    const user = req.body.name;
+    const content = req.body.comment;
+    const articleId = req.params.id;
 
     //submitted form
-    var commentObj = {
+    let commentObj = {
         name: user,
         body: content
     };
 
     //using the Comment model, create a new comment
-    var newComment = new Comment(commentObj);
+    const newComment = new Comment(commentObj);
 
     newComment.save(function(err, doc) {
         if (err) {
